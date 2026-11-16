@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Pelada do Trabalho</title>
+<style>
+  :root{
+    --bg:#0b1a14; --card:#13281f; --card2:#1a3529; --line:#25463a;
+    --txt:#eaf5ef; --mut:#9bb8aa; --acc:#3ddc84; --acc2:#ffd166; --red:#ff6b6b; --blue:#5cc8ff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:16px}
+  body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(76px + env(safe-area-inset-bottom)) env(safe-area-inset-left)}
+  header{padding:18px 16px 8px;display:flex;align-items:center;gap:10px}
+  header h1{font-size:20px;margin:0;flex:1}
+  header .ball{font-size:24px}
+  main{padding:0 12px 16px;max-width:640px;margin:0 auto}
+  h2{font-size:15px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:20px 4px 8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+  .row{display:flex;align-items:center;gap:8px}
+  .grow{flex:1;min-width:0}
+  .mut{color:var(--mut);font-size:13px}
+  input,select{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;width:100%}
+  button{font:inherit;border:0;border-radius:10px;padding:11px 14px;background:var(--card2);color:var(--txt);cursor:pointer}
+  button:active{transform:scale(.97)}
+  .btn-acc{background:var(--acc);color:#05200f;font-weight:700}
+  .btn-red{background:transparent;color:var(--red);border:1px solid #5a2a2a}
+  .btn-sm{padding:7px 10px;font-size:14px}
+  .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;background:#1f4a3a;color:var(--acc);margin-left:6px;vertical-align:middle}
+  .tag.gk{background:#3d3416;color:var(--acc2)}
+  nav{position:fixed;left:0;right:0;bottom:0;background:#0d211a;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+  nav button{flex:1;background:none;border-radius:0;padding:10px 4px 12px;color:var(--mut);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+  nav button .i{font-size:20px}
+  nav button.on{color:var(--acc)}
+  .stat{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .ctr{display:flex;align-items:center;background:var(--card2);border-radius:10px;overflow:hidden}
+  .ctr span.l{font-size:12px;color:var(--mut);padding:0 6px 0 9px;min-width:46px}
+  .ctr b{min-width:24px;text-align:center;font-size:17px}
+  .ctr button{background:none;padding:9px 11px;font-size:18px;color:var(--acc);border-radius:0}
+  .ctr button.m{color:var(--mut)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:9px 6px;text-align:center;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-weight:600;font-size:12px;cursor:pointer;user-select:none}
+  th.on{color:var(--acc)}
+  td:nth-child(2),th:nth-child(2){text-align:left}
+  td:first-child{color:var(--mut);width:24px}
+  .seg{display:flex;background:var(--card2);border-radius:10px;padding:3px;gap:3px;margin-bottom:10px}
+  .seg button{flex:1;padding:8px;font-size:14px;background:none;color:var(--mut)}
+  .seg button.on{background:var(--card);color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:9px 12px;border-radius:99px;background:var(--card2);border:1px solid var(--line);font-size:14px}
+  .chip.on{background:#1f4a3a;border-color:var(--acc);color:var(--acc)}
+  .empty{color:var(--mut);text-align:center;padding:26px 10px;font-size:14px}
+  .top3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .top3 .card{text-align:center;margin:0;padding:10px 6px}
+  .top3 .n{font-size:26px;font-weight:800;color:var(--acc)}
+  .top3 .who{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  textarea{width:100%;min-height:120px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,monospace;font-size:12px}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .modal.show{display:flex}
+  .sheet{background:var(--card);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:640px;max-height:85vh;overflow:auto}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--acc);color:#05200f;padding:10px 16px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1}
+  .score{display:flex;align-items:center;justify-content:center;gap:10px;font-size:28px;font-weight:800}
+</style>
+</head>
+<body>
+<header><span class="ball">⚽</span><h1>Pelada do Trabalho</h1></header>
+<main id="app"></main>
+
+<nav id="nav">
+  <button data-v="hoje"><span class="i">🏟️</span>Pelada</button>
+  <button data-v="ranking"><span class="i">🏆</span>Ranking</button>
+  <button data-v="historico"><span class="i">📅</span>Histórico</button>
+  <button data-v="jogadores"><span class="i">👥</span>Jogadores</button>
+</nav>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<style>
+  .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .tb{width:34px;height:34px;border-radius:50%;padding:0;border:2px solid var(--c);background:transparent;color:var(--c);font-weight:700;font-size:13px}
+  .tb.on{background:var(--c);color:#06140e}
+  .board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:6px}
+  .board .tn{font-weight:700;font-size:15px}
+  .board .sc{font-size:40px;font-weight:800;letter-spacing:2px}
+  .side{border-left:4px solid var(--c)}
+  .prow{display:flex;align-items:center;gap:6px;padding:7px 0;border-top:1px solid var(--line)}
+  .prow:first-of-type{border-top:0}
+  .ctr.s span.l{min-width:0;padding-right:2px}
+  .ctr.s button{padding:8px 9px}
+  .mrow{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+  .mrow:first-child{border-top:0}
+  select{appearance:none}
+</style>
+<script>
+const KEY='pelada-v1';
+const COLORS=[['Azul','#5cc8ff'],['Laranja','#ff9f43'],['Verde','#3ddc84'],['Amarelo','#ffd166'],['Vermelho','#ff6b6b'],['Roxo','#b388ff']];
+let db={players:[],sessions:[]};
+let view='hoje', sub='main', rankTab='geral', rankSort='gols', gkSort='defesas', curSession=null, curMatch=null;
+
+function load(){try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s);}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('Não foi possível salvar neste navegador');}}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pObj=id=>db.players.find(p=>p.id===id);
+const pName=id=>(pObj(id)||{name:'(removido)'}).name;
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const fmtDate=s=>{const [y,m,d]=s.split('-');return `${d}/${m}/${y}`};
+const S=()=>db.sessions.find(x=>x.id===curSession);
+const M=()=>{const s=S();return s&&s.matches.find(m=>m.id===curMatch)};
+const team=(s,id)=>s.teams.find(t=>t.id===id)||{name:'?',color:'#888',players:[]};
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1800)}
+function openModal(html){document.getElementById('sheet').innerHTML=html;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+function confirmBox(msg,onYes){
+  openModal(`<p style="margin-top:0">${esc(msg)}</p><div class="row"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-red" id="yes">Confirmar</button></div>`);
+  document.getElementById('yes').onclick=()=>{closeModal();onYes()};
+}
+function rerender(){const y=window.scrollY;render(true);window.scrollTo(0,y)}
+
+/* ---------- match / stats logic ---------- */
+const sidePlayers=(s,m,side)=>m.done?(side==='a'?m.pa:m.pb):team(s,side==='a'?m.a:m.b).players;
+const score=(s,m,side)=>sidePlayers(s,m,side).reduce((n,pid)=>n+((m.g[pid]||{}).gols||0),0)+((m.og||{})[side]||0);
+function result(s,m){const a=score(s,m,'a'),b=score(s,m,'b');return a>b?'a':b>a?'b':'e'}
+
+// per-session stats: {pid:{jogos,v,gols,assist,gkJogos,defesas,gs}}
+function sessionStats(s){
+  const r={};const get=id=>r[id]||(r[id]={jogos:0,v:0,gols:0,assist:0,gkJogos:0,defesas:0,gs:0});
+  if(s.stats){ // formato antigo
+    Object.entries(s.stats).forEach(([id,x])=>{const o=get(id);o.jogos+=x.jogos||0;o.gols+=x.gols||0;o.assist+=x.assist||0;o.defesas+=x.defesas||0;if(x.defesas)o.gkJogos+=x.jogos||0});
+    return r;
+  }
+  (s.matches||[]).forEach(m=>{
+    const res=result(s,m);
+    ['a','b'].forEach(side=>{
+      sidePlayers(s,m,side).forEach(pid=>{const o=get(pid),g=m.g[pid]||{};o.jogos++;if(res===side)o.v++;o.gols+=g.gols||0;o.assist+=g.assist||0});
+      const gk=side==='a'?m.gkA:m.gkB;
+      if(gk){const o=get(gk);o.gkJogos++;o.defesas+=m.sv[gk]||0;o.gs+=score(s,m,side==='a'?'b':'a')}
+    });
+  });
+  return r;
+}
+function totals(filter){
+  const t={};
+  db.players.forEach(p=>t[p.id]={id:p.id,name:p.name,gk:p.gk,peladas:0,jogos:0,v:0,gols:0,assist:0,gkPeladas:0,gkJogos:0,defesas:0,gs:0});
+  db.sessions.filter(filter||(()=>true)).forEach(s=>{
+    Object.entries(sessionStats(s)).forEach(([pid,x])=>{const o=t[pid];if(!o)return;
+      if(x.jogos)o.peladas++; if(x.gkJogos)o.gkPeladas++;
+      ['jogos','v','gols','assist','gkJogos','defesas','gs'].forEach(k=>o[k]+=x[k]);
+    });
+  });
+  return Object.values(t);
+}
+function standings(s){
+  const t={};s.teams.forEach(x=>t[x.id]={team:x,j:0,v:0,e:0,d:0,gp:0,gc:0});
+  s.matches.forEach(m=>{const a=t[m.a],b=t[m.b];if(!a||!b)return;const sa=score(s,m,'a'),sb=score(s,m,'b');
+    a.j++;b.j++;a.gp+=sa;a.gc+=sb;b.gp+=sb;b.gc+=sa;
+    if(sa>sb){a.v++;b.d++}else if(sb>sa){b.v++;a.d++}else{a.e++;b.e++}});
+  return Object.values(t).map(x=>({...x,pts:x.v*3+x.e})).sort((a,b)=>b.pts-a.pts||(b.gp-b.gc)-(a.gp-a.gc)||b.gp-a.gp);
+}
+
+/* ---------- render ---------- */
+function render(keep){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  document.getElementById('app').innerHTML=({hoje:vHoje,ranking:vRanking,historico:vHistorico,jogadores:vJogadores})[view]();
+  if(!keep)window.scrollTo(0,0);
+}
+
+function vHoje(){
+  const s=S();
+  if(!s) return vNew();
+  if(s.stats) return `<div class="card empty">Esta pelada foi registrada no formato antigo (sem times).<br><br><button onclick="curSession=null;render()">Voltar</button></div>`;
+  if(sub==='teams') return vTeams(s);
+  if(sub==='match'&&M()) return vMatch(s,M());
+  return vSession(s);
+}
+
+function vNew(){
+  if(!db.players.length) return `<div class="card empty">Comece cadastrando os jogadores na aba <b>Jogadores</b>.<br><br><button class="btn-acc" onclick="go('jogadores')">Cadastrar jogadores</button></div>`;
+  const line=db.players.filter(p=>!p.gk).sort((a,b)=>a.name.localeCompare(b.name)), gks=db.players.filter(p=>p.gk).sort((a,b)=>a.name.localeCompare(b.name));
+  const chip=p=>`<button class="chip" data-id="${p.id}" onclick="this.classList.toggle('on')">${esc(p.name)}</button>`;
+  const ultima=[...db.sessions].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  return `<h2>Nova pelada</h2>
+    <div class="card">
+      <label class="mut">Data</label>
+      <input type="date" id="nd" value="${today()}" style="margin:6px 0 14px">
+      <div class="row" style="margin-bottom:8px"><span class="mut grow">Jogadores de linha que vieram</span><button class="btn-sm" onclick="markAll('#cl')">Todos</button></div>
+      <div class="chips" id="cl">${line.map(chip).join('')||'<span class="mut">Nenhum jogador de linha cadastrado</span>'}</div>
+      <div class="row" style="margin:16px 0 8px"><span class="mut grow">🧤 Goleiros (ficam fora dos times)</span><button class="btn-sm" onclick="markAll('#cg')">Todos</button></div>
+      <div class="chips" id="cg">${gks.map(chip).join('')||'<span class="mut">Nenhum goleiro cadastrado — marque na aba Jogadores</span>'}</div>
+      <div class="row" style="margin-top:16px"><span class="grow">Quantos times?</span>
+        <div class="ctr"><button class="m" onclick="nt(-1)">−</button><b id="ntv">${newTeams}</b><button onclick="nt(1)">+</button></div></div>
+      <button class="btn-acc" style="width:100%;margin-top:14px" onclick="startSession()">Montar times</button>
+    </div>
+    ${ultima?`<h2>Última pelada</h2><div class="card row"><div class="grow"><b>${fmtDate(ultima.date)}</b><div class="mut">${ultima.teams?ultima.teams.length+' times · '+ultima.matches.length+' partidas':Object.keys(ultima.stats).length+' jogadores'}</div></div><button class="btn-sm" onclick="openSession('${ultima.id}')">Abrir</button></div>`:''}`;
+}
+let newTeams=2;
+function nt(d){newTeams=Math.min(6,Math.max(2,newTeams+d));document.getElementById('ntv').textContent=newTeams}
+
+function vTeams(s){
+  const all=[...s.line].sort((a,b)=>pName(a).localeCompare(pName(b)));
+  const owner=pid=>s.teams.find(t=>t.players.includes(pid));
+  const semTime=all.filter(p=>!owner(p)).length;
+  const others=db.players.filter(p=>!s.line.includes(p.id)&&!s.gks.includes(p.id));
+  return `<div class="row" style="margin:6px 4px 10px"><b class="grow" style="font-size:18px">Times · ${fmtDate(s.date)}</b><button class="btn-acc btn-sm" onclick="sub='main';render()">Pronto</button></div>
+    <div class="card">
+      <div class="row"><span class="grow">Quantidade de times</span><div class="ctr"><button class="m" onclick="setTeamCount(-1)">−</button><b>${s.teams.length}</b><button onclick="setTeamCount(1)">+</button></div></div>
+      <div class="chips" style="margin-top:12px">${s.teams.map(t=>`<button class="chip" style="border-color:${t.color}" onclick="renameTeam('${t.id}')"><span class="dot" style="background:${t.color}"></span>${esc(t.name)} (${t.players.length}) ✏️</button>`).join('')}</div>
+      <button style="width:100%;margin-top:12px" onclick="shuffleTeams()">🎲 Sortear times</button>
+    </div>
+    <h2>Jogadores de linha ${semTime?`<span style="color:var(--acc2);text-transform:none">· ${semTime} sem time</span>`:''}</h2>
+    <div class="card">${all.map(pid=>{const o=owner(pid);return `<div class="prow"><span class="grow">${o?`<span class="dot" style="background:${o.color}"></span>`:''}${esc(pName(pid))}</span>
+      ${s.teams.map(t=>`<button class="tb ${o===t?'on':''}" style="--c:${t.color}" onclick="assign('${pid}','${t.id}')">${t.name[0]}</button>`).join('')}
+      <button class="btn-sm" style="background:none;color:var(--mut)" onclick="dropLine('${pid}')">✕</button></div>`}).join('')||'<div class="mut">Ninguém ainda.</div>'}</div>
+    <h2>🧤 Goleiros (sem time)</h2>
+    <div class="card"><div class="chips">${s.gks.map(pid=>`<button class="chip on" onclick="toggleSessGk('${pid}')">${esc(pName(pid))} ✕</button>`).join('')||'<span class="mut">Nenhum goleiro nesta pelada.</span>'}</div></div>
+    ${others.length?`<h2>Adicionar à pelada</h2><div class="card"><div class="chips">${others.map(p=>`<button class="chip" onclick="${p.gk?`toggleSessGk('${p.id}')`:`addLine('${p.id}')`}">+ ${esc(p.name)}${p.gk?' 🧤':''}</button>`).join('')}</div></div>`:''}`;
+}
+
+function vSession(s){
+  const st=standings(s), stats=sessionStats(s);
+  const ms=[...s.matches].reverse();
+  return `<div class="row" style="margin:6px 4px 10px"><div class="grow"><b style="font-size:18px">Pelada de ${fmtDate(s.date)}</b><div class="mut">${s.matches.length} partidas · ${s.line.length} na linha · ${s.gks.length} goleiros</div></div><button class="btn-sm" onclick="sub='teams';render()">👥 Times</button></div>
+    <button class="btn-acc" style="width:100%;margin-bottom:10px" onclick="newMatch()">+ Nova partida</button>
+    <h2>Times do dia</h2>
+    <div class="card" style="padding:4px 6px;overflow-x:auto"><table><thead><tr><th>#</th><th>Time</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th><th>Pts</th></tr></thead><tbody>
+      ${st.map((x,i)=>`<tr><td>${i+1}</td><td><span class="dot" style="background:${x.team.color}"></span>${esc(x.team.name)}<div class="mut" style="font-size:11px">${x.team.players.map(pName).map(esc).join(', ')||'sem jogadores'}</div></td><td>${x.j}</td><td>${x.v}</td><td>${x.e}</td><td>${x.d}</td><td>${x.gp-x.gc}</td><td><b>${x.pts}</b></td></tr>`).join('')}
+    </tbody></table></div>
+    <h2>Partidas</h2>
+    <div class="card">${ms.length?ms.map((m,i)=>{const A=team(s,m.a),B=team(s,m.b);return `<div class="mrow" onclick="openMatch('${m.id}')" style="cursor:pointer">
+      <span class="mut" style="width:22px">${s.matches.length-i}</span>
+      <span class="grow"><span class="dot" style="background:${A.color}"></span>${esc(A.name)} <b>${score(s,m,'a')} x ${score(s,m,'b')}</b> ${esc(B.name)}<span class="dot" style="background:${B.color};margin:0 0 0 6px"></span>
+      ${!m.done?'<span class="tag">em jogo</span>':''}</span><span class="mut">›</span></div>`}).join(''):'<div class="mut">Nenhuma partida ainda.</div>'}</div>
+    ${s.gks.length?`<h2>🧤 Goleiros no dia</h2><div class="card">${s.gks.map(pid=>{const x=stats[pid]||{gkJogos:0,defesas:0,gs:0};return `<div class="prow"><b class="grow">${esc(pName(pid))}</b><span class="mut">${x.gkJogos} J · ${x.defesas} def · ${x.gs} GS</span></div>`}).join('')}</div>`:''}
+    <button style="width:100%;margin-top:10px" onclick="closeSession()">✓ Encerrar e voltar</button>`;
+}
+
+function vMatch(s,m){
+  const A=team(s,m.a),B=team(s,m.b);
+  const side=(sd,T,gk)=>{const ps=sidePlayers(s,m,sd);return `<div class="card side" style="--c:${T.color}">
+    <b><span class="dot" style="background:${T.color}"></span>${esc(T.name)}</b>
+    <div class="prow" style="margin-top:6px"><span class="grow">🧤 ${gk?esc(pName(gk)):'<span class="mut">sem goleiro</span>'}</span>
+      ${gk?`<div class="ctr s"><span class="l">Def</span><button class="m" onclick="sv('${gk}',-1)">−</button><b>${m.sv[gk]||0}</b><button onclick="sv('${gk}',1)">+</button></div>`:''}
+      <button class="btn-sm" onclick="pickGk('${sd}')">trocar</button></div>
+    ${ps.map(pid=>{const g=m.g[pid]||{};return `<div class="prow"><span class="grow" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pName(pid))}</span>
+      <div class="ctr s"><span class="l">⚽</span><button class="m" onclick="pg('${pid}','gols',-1)">−</button><b>${g.gols||0}</b><button onclick="pg('${pid}','gols',1)">+</button></div>
+      <div class="ctr s"><span class="l">🅰️</span><button class="m" onclick="pg('${pid}','assist',-1)">−</button><b>${g.assist||0}</b><button onclick="pg('${pid}','assist',1)">+</button></div></div>`}).join('')||'<div class="mut">Time sem jogadores</div>'}
+    <div class="prow"><span class="grow mut">Gol contra a favor</span><div class="ctr s"><button class="m" onclick="og('${sd}',-1)">−</button><b>${(m.og||{})[sd]||0}</b><button onclick="og('${sd}',1)">+</button></div></div>
+  </div>`};
+  return `<div class="row" style="margin:6px 4px 10px"><button class="btn-sm" onclick="sub='main';render()">‹ Voltar</button><span class="grow"></span>${m.done?'<span class="tag">encerrada</span>':'<span class="tag">em jogo</span>'}</div>
+    <div class="card board"><div class="tn" style="color:${A.color}">${esc(A.name)}</div><div class="sc">${score(s,m,'a')} x ${score(s,m,'b')}</div><div class="tn" style="color:${B.color}">${esc(B.name)}</div></div>
+    ${side('a',A,m.gkA)}${side('b',B,m.gkB)}
+    ${m.done?`<button style="width:100%" onclick="reopenMatch()">Reabrir partida</button>`:`<button class="btn-acc" style="width:100%" onclick="finishMatch()">✓ Encerrar partida</button>`}
+    <button class="btn-red" style="width:100%;margin-top:10px" onclick="delMatch()">Excluir partida</button>`;
+}
+
+function vRanking(){
+  if(!db.sessions.length) return `<div class="card empty">Nenhuma pelada registrada ainda.</div>`;
+  const year=new Date().getFullYear().toString(), month=today().slice(0,7);
+  const f={geral:null,ano:s=>s.date.startsWith(year),mes:s=>s.date.startsWith(month)}[rankTab];
+  const all=totals(f);
+  const rows=all.filter(r=>r.jogos>0);rows.forEach(r=>r.ga=r.gols+r.assist);
+  rows.sort((a,b)=>b[rankSort]-a[rankSort]||b.gols-a.gols||a.name.localeCompare(b.name));
+  const gks=all.filter(r=>r.gkJogos>0);gks.forEach(r=>{r.media=r.gkJogos?+(r.gs/r.gkJogos).toFixed(1):0;r.dpj=r.gkJogos?+(r.defesas/r.gkJogos).toFixed(1):0});
+  gks.sort((a,b)=>gkSort==='media'?a.media-b.media:b[gkSort]-a[gkSort]);
+  const best=(arr,k)=>{const r=[...arr].sort((a,b)=>b[k]-a[k])[0];return r&&r[k]>0?r:null};
+  const card=(t,r,k)=>`<div class="card"><div class="mut" style="font-size:11px">${t}</div><div class="n">${r?r[k]:'–'}</div><div class="who">${r?esc(r.name):'—'}</div></div>`;
+  const cols=[['peladas','Pel.'],['jogos','J'],['v','V'],['gols','G'],['assist','A'],['ga','G+A']];
+  const gcols=[['gkJogos','J'],['defesas','Def'],['dpj','Def/J'],['gs','GS'],['media','GS/J']];
+  return `<div class="seg">${[['geral','Geral'],['ano',year],['mes','Este mês']].map(([k,l])=>`<button class="${rankTab===k?'on':''}" onclick="rankTab='${k}';render()">${l}</button>`).join('')}</div>
+    <div class="top3">${card('⚽ Artilheiro',best(rows,'gols'),'gols')}${card('🅰️ Garçom',best(rows,'assist'),'assist')}${card('🧤 Paredão',best(gks,'defesas'),'defesas')}</div>
+    <h2>Jogadores de linha</h2>
+    ${rows.length?`<div class="card" style="padding:4px 6px;overflow-x:auto"><table><thead><tr><th>#</th><th>Jogador</th>${cols.map(([k,l])=>`<th class="${rankSort===k?'on':''}" onclick="rankSort='${k}';render(true)">${l}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td>${cols.map(([k])=>`<td style="${rankSort===k?'font-weight:700;color:var(--acc)':''}">${r[k]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="card empty">Sem dados neste período.</div>`}
+    <h2>🧤 Goleiros</h2>
+    ${gks.length?`<div class="card" style="padding:4px 6px;overflow-x:auto"><table><thead><tr><th>#</th><th>Goleiro</th>${gcols.map(([k,l])=>`<th class="${gkSort===k?'on':''}" onclick="gkSort='${k}';render(true)">${l}</th>`).join('')}</tr></thead>
+    <tbody>${gks.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name)}</td>${gcols.map(([k])=>`<td style="${gkSort===k?'font-weight:700;color:var(--acc)':''}">${r[k]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:`<div class="card empty">Sem goleiros neste período.</div>`}
+    <p class="mut" style="text-align:center">Toque no cabeçalho para ordenar · Pel. = peladas · J = jogos · V = vitórias · GS = gols sofridos</p>`;
+}
+
+function vHistorico(){
+  if(!db.sessions.length) return `<div class="card empty">Nenhuma pelada registrada ainda.</div>${backupBox()}`;
+  const list=[...db.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  return `<h2>Peladas (${list.length})</h2>`+list.map(s=>{
+    const st=Object.entries(sessionStats(s));
+    const g=st.reduce((n,[,x])=>n+x.gols,0);
+    const top=st.filter(([,x])=>x.gols).sort((a,b)=>b[1].gols-a[1].gols).slice(0,3).map(([id,x])=>`${esc(pName(id))} (${x.gols})`).join(', ');
+    const camp=s.teams&&s.matches.length?standings(s)[0]:null;
+    return `<div class="card"><div class="row"><div class="grow"><b>${fmtDate(s.date)}</b>
+      <div class="mut">${s.teams?`${s.teams.length} times · ${s.matches.length} partidas`:`${st.length} jogadores`} · ${g} gols</div>
+      ${camp?`<div class="mut">🏆 <span class="dot" style="background:${camp.team.color}"></span>${esc(camp.team.name)} (${camp.pts} pts)</div>`:''}
+      ${top?`<div class="mut">⚽ ${top}</div>`:''}</div>
+      <button class="btn-sm" onclick="openSession('${s.id}')">Abrir</button></div>
+      <div class="row" style="margin-top:8px;justify-content:flex-end"><button class="btn-sm btn-red" onclick="delSession('${s.id}')">Excluir</button></div></div>`}).join('')+backupBox();
+}
+function backupBox(){return `<h2>Backup</h2><div class="card"><p class="mut" style="margin-top:0">Os dados ficam salvos só neste celular/navegador. Copie o backup de vez em quando e guarde (ex.: mande no WhatsApp pra você mesmo).</p>
+  <div class="row"><button class="grow" onclick="exportData()">📋 Copiar backup</button><button class="grow" onclick="importData()">📥 Restaurar</button></div></div>`}
+
+function vJogadores(){
+  return `<h2>Adicionar jogador</h2><div class="card">
+    <input id="pn" placeholder="Nome ou apelido" maxlength="30" onkeydown="if(event.key==='Enter')addPlayer()">
+    <div class="row" style="margin-top:10px"><label class="row grow mut" style="gap:8px"><input type="checkbox" id="pgk" style="width:22px;height:22px"> É goleiro</label><button class="btn-acc" id="addp" onclick="addPlayer()">Adicionar</button></div></div>
+    <h2>Elenco (${db.players.length})</h2>
+    ${db.players.length?[...db.players].sort((a,b)=>(b.gk-a.gk)||a.name.localeCompare(b.name)).map(p=>`<div class="card row">
+      <b class="grow">${esc(p.name)}${p.gk?'<span class="tag gk">goleiro</span>':''}</b>
+      <button class="btn-sm" onclick="toggleGk('${p.id}')">${p.gk?'Linha':'🧤 Goleiro'}</button>
+      <button class="btn-sm" onclick="renamePlayer('${p.id}')">✏️</button>
+      <button class="btn-sm btn-red" onclick="delPlayer('${p.id}')">🗑</button></div>`).join(''):`<div class="card empty">Nenhum jogador ainda.</div>`}`;
+}
+
+/* ---------- actions ---------- */
+function go(v){view=v;render()}
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.v)});
+function markAll(sel){const c=[...document.querySelectorAll(sel+' .chip')];const all=c.every(x=>x.classList.contains('on'));c.forEach(x=>x.classList.toggle('on',!all))}
+function mkTeam(i){const [n,c]=COLORS[i%COLORS.length];return {id:uid(),name:n,color:c,players:[]}}
+function startSession(){
+  const line=[...document.querySelectorAll('#cl .chip.on')].map(c=>c.dataset.id);
+  const gks=[...document.querySelectorAll('#cg .chip.on')].map(c=>c.dataset.id);
+  if(!line.length)return toast('Marque quem veio');
+  const s={id:uid(),date:document.getElementById('nd').value||today(),line,gks,teams:[],matches:[]};
+  for(let i=0;i<newTeams;i++)s.teams.push(mkTeam(i));
+  db.sessions.push(s);curSession=s.id;shuffleTeams(true);sub='teams';save();render();
+}
+function shuffleTeams(silent){const s=S();const arr=[...s.line].sort(()=>Math.random()-.5);
+  s.teams.forEach(t=>t.players=[]);arr.forEach((p,i)=>s.teams[i%s.teams.length].players.push(p));save();
+  if(silent!==true){rerender();toast('Times sorteados 🎲')}}
+function setTeamCount(d){const s=S();
+  if(d>0){if(s.teams.length>=6)return;s.teams.push(mkTeam(s.teams.length))}
+  else{if(s.teams.length<=2)return;const t=s.teams[s.teams.length-1];
+    if(s.matches.some(m=>m.a===t.id||m.b===t.id))return toast('Esse time já jogou, não dá para remover');s.teams.pop()}
+  save();rerender()}
+function assign(pid,tid){const s=S();const t=s.teams.find(x=>x.id===tid);const had=t.players.includes(pid);
+  s.teams.forEach(x=>x.players=x.players.filter(p=>p!==pid));if(!had)t.players.push(pid);save();rerender()}
+function dropLine(pid){const s=S();s.line=s.line.filter(p=>p!==pid);s.teams.forEach(x=>x.players=x.players.filter(p=>p!==pid));save();rerender()}
+function addLine(pid){const s=S();s.line.push(pid);save();rerender()}
+function toggleSessGk(pid){const s=S();s.gks=s.gks.includes(pid)?s.gks.filter(p=>p!==pid):[...s.gks,pid];save();rerender()}
+function renameTeam(tid){const t=S().teams.find(x=>x.id===tid);
+  openModal(`<b>Editar time</b><input id="tn" value="${esc(t.name)}" maxlength="20" style="margin:12px 0">
+  <div class="chips">${COLORS.map(([n,c])=>`<button class="tb ${t.color===c?'on':''}" style="--c:${c}" onclick="document.querySelectorAll('#sheet .tb').forEach(b=>b.classList.remove('on'));this.classList.add('on');this.dataset.sel=1" data-c="${c}"> </button>`).join('')}</div>
+  <div class="row" style="margin-top:14px"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-acc" onclick="doRenameTeam('${tid}')">Salvar</button></div>`)}
+function doRenameTeam(tid){const t=S().teams.find(x=>x.id===tid);const n=document.getElementById('tn').value.trim();if(n)t.name=n;
+  const c=document.querySelector('#sheet .tb.on');if(c)t.color=c.dataset.c;save();closeModal();rerender()}
+
+function suggestPair(s){
+  const ids=s.teams.map(t=>t.id);if(s.matches.length===0)return [ids[0],ids[1]];
+  const last=s.matches[s.matches.length-1];const r=result(s,last);
+  const stay=r==='a'?last.a:r==='b'?last.b:null;
+  const lastPlayed=id=>{for(let i=s.matches.length-1;i>=0;i--){const m=s.matches[i];if(m.a===id||m.b===id)return i}return -1};
+  const rest=ids.filter(id=>id!==stay).sort((a,b)=>lastPlayed(a)-lastPlayed(b));
+  return stay?[stay,rest[0]]:[rest[0],rest[1]];
+}
+function newMatch(){const s=S();if(s.teams.length<2)return toast('Precisa de 2 times');
+  const [a,b]=suggestPair(s);
+  const last=s.matches[s.matches.length-1];
+  const tOpt=sel=>s.teams.map(t=>`<option value="${t.id}" ${t.id===sel?'selected':''}>${esc(t.name)}</option>`).join('');
+  const gOpt=sel=>`<option value="">— sem goleiro —</option>`+s.gks.map(g=>`<option value="${g}" ${g===sel?'selected':''}>${esc(pName(g))}</option>`).join('');
+  const ga=last?last.gkA:s.gks[0], gb=last?last.gkB:s.gks[1];
+  openModal(`<b>Nova partida</b><p class="mut" style="margin:4px 0 12px">Sugestão: quem ganhou fica, entra quem está esperando há mais tempo.</p>
+    <div class="row"><select id="ma" class="grow">${tOpt(a)}</select><b>x</b><select id="mb" class="grow">${tOpt(b)}</select></div>
+    <div class="row" style="margin-top:10px"><select id="ga" class="grow">${gOpt(ga)}</select><span class="mut">🧤</span><select id="gb" class="grow">${gOpt(gb)}</select></div>
+    <div class="row" style="margin-top:14px"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-acc" onclick="createMatch()">Começar</button></div>`)}
+function createMatch(){const s=S();const a=val('ma'),b=val('mb');if(a===b)return toast('Escolha times diferentes');
+  const gkA=val('ga')||null,gkB=val('gb')||null;if(gkA&&gkA===gkB)return toast('Escolha goleiros diferentes');
+  const m={id:uid(),a,b,gkA,gkB,g:{},sv:{},og:{a:0,b:0},done:false};s.matches.push(m);save();closeModal();curMatch=m.id;sub='match';render()}
+const val=id=>document.getElementById(id).value;
+function openMatch(id){curMatch=id;sub='match';render()}
+function pg(pid,k,d){const m=M();const g=m.g[pid]||(m.g[pid]={gols:0,assist:0});g[k]=Math.max(0,(g[k]||0)+d);save();rerender();if(d>0&&k==='gols')toast(`⚽ Gol de ${pName(pid)}!`)}
+function sv(pid,d){const m=M();m.sv[pid]=Math.max(0,(m.sv[pid]||0)+d);save();rerender();if(d>0)toast(`🧤 Defesa de ${pName(pid)}!`)}
+function og(sd,d){const m=M();m.og=m.og||{a:0,b:0};m.og[sd]=Math.max(0,(m.og[sd]||0)+d);save();rerender()}
+function pickGk(sd){const s=S(),m=M();
+  openModal(`<b>Goleiro do ${esc(team(s,sd==='a'?m.a:m.b).name)}</b><div class="chips" style="margin-top:12px">
+    <button class="chip" onclick="setGk('${sd}','')">Sem goleiro</button>${s.gks.map(g=>`<button class="chip ${(sd==='a'?m.gkA:m.gkB)===g?'on':''}" onclick="setGk('${sd}','${g}')">${esc(pName(g))}</button>`).join('')}</div>
+    ${s.gks.length?'':'<p class="mut">Adicione goleiros em 👥 Times.</p>'}`)}
+function setGk(sd,g){const m=M();g=g||null;const other=sd==='a'?'gkB':'gkA';if(g&&m[other]===g)m[other]=m[sd==='a'?'gkA':'gkB'];m[sd==='a'?'gkA':'gkB']=g;save();closeModal();rerender()}
+function finishMatch(){const s=S(),m=M();m.pa=[...team(s,m.a).players];m.pb=[...team(s,m.b).players];m.done=true;save();
+  const r=result(s,m);toast(r==='e'?'Empate!':`Vitória do ${team(s,r==='a'?m.a:m.b).name}!`);sub='main';render()}
+function reopenMatch(){const m=M();m.done=false;delete m.pa;delete m.pb;save();rerender()}
+function delMatch(){confirmBox('Excluir esta partida e os números dela?',()=>{const s=S();s.matches=s.matches.filter(m=>m.id!==curMatch);save();sub='main';render()})}
+function openSession(id){curSession=id;sub='main';view='hoje';render()}
+function closeSession(){curSession=null;render();toast('Pelada salva ✓')}
+function delSession(id){confirmBox('Excluir esta pelada e todos os números dela?',()=>{db.sessions=db.sessions.filter(s=>s.id!==id);if(curSession===id)curSession=null;save();render()})}
+function addPlayer(){const n=document.getElementById('pn').value.trim();if(!n)return;
+  if(db.players.some(p=>p.name.toLowerCase()===n.toLowerCase()))return toast('Já existe esse nome');
+  db.players.push({id:uid(),name:n,gk:document.getElementById('pgk').checked});save();render();toast(`${n} adicionado`);document.getElementById('pn')?.focus()}
+function toggleGk(id){const p=pObj(id);p.gk=!p.gk;save();rerender()}
+function renamePlayer(id){const p=pObj(id);openModal(`<b>Renomear</b><input id="rn" value="${esc(p.name)}" style="margin:12px 0"><div class="row"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-acc" onclick="doRename('${id}')">Salvar</button></div>`)}
+function doRename(id){const n=document.getElementById('rn').value.trim();if(n){pObj(id).name=n;save()}closeModal();rerender()}
+function delPlayer(id){confirmBox(`Excluir ${pName(id)}? Os números dele em todas as peladas também serão apagados.`,()=>{
+  db.players=db.players.filter(p=>p.id!==id);
+  db.sessions.forEach(s=>{if(s.stats){delete s.stats[id];return}
+    s.line=s.line.filter(p=>p!==id);s.gks=s.gks.filter(p=>p!==id);s.teams.forEach(t=>t.players=t.players.filter(p=>p!==id));
+    s.matches.forEach(m=>{delete m.g[id];delete m.sv[id];if(m.gkA===id)m.gkA=null;if(m.gkB===id)m.gkB=null;if(m.pa)m.pa=m.pa.filter(p=>p!==id);if(m.pb)m.pb=m.pb.filter(p=>p!==id)})});
+  save();render()})}
+async function exportData(){const txt=JSON.stringify(db);
+  try{await navigator.clipboard.writeText(txt);toast('Backup copiado ✓')}
+  catch(e){openModal(`<b>Backup</b><p class="mut">Selecione e copie o texto abaixo:</p><textarea readonly onclick="this.select()">${esc(txt)}</textarea><button style="width:100%;margin-top:10px" onclick="closeModal()">Fechar</button>`)}}
+function importData(){openModal(`<b>Restaurar backup</b><p class="mut">Cole o texto do backup. Isso substitui os dados atuais.</p><textarea id="imp"></textarea>
+  <div class="row" style="margin-top:10px"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-acc" onclick="doImport()">Restaurar</button></div>`)}
+function doImport(){try{const d=JSON.parse(document.getElementById('imp').value);if(!Array.isArray(d.players)||!Array.isArray(d.sessions))throw 0;db=d;save();curSession=null;closeModal();render();toast('Dados restaurados ✓')}catch(e){toast('Backup inválido')}}
+
+load();render();
+</script>
+</body>
+</html>
