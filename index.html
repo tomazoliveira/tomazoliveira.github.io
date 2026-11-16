@@ -31,6 +31,7 @@
   .btn-sm{padding:7px 10px;font-size:14px}
   .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;background:#1f4a3a;color:var(--acc);margin-left:6px;vertical-align:middle}
   .tag.gk{background:#3d3416;color:var(--acc2)}
+  .tag.w{background:#1a3a52;color:var(--blue)}
   nav{position:fixed;left:0;right:0;bottom:0;background:#0d211a;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
   nav button{flex:1;background:none;border-radius:0;padding:10px 4px 12px;color:var(--mut);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
   nav button .i{font-size:20px}
@@ -95,11 +96,14 @@
   .ctr.s button{padding:8px 9px}
   .mrow{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
   .mrow:first-child{border-top:0}
+  .thead{font-weight:700;font-size:14px;margin:12px 0 2px;padding-top:4px}
+  .thead:first-child{margin-top:0}
   select{appearance:none}
 </style>
 <script>
 const KEY='pelada-v1';
 const COLORS=[['Azul','#5cc8ff'],['Laranja','#ff9f43'],['Verde','#3ddc84'],['Amarelo','#ffd166'],['Vermelho','#ff6b6b'],['Roxo','#b388ff']];
+const W_MIN=1, W_MAX=5, W_DEF=3;
 let db={players:[],sessions:[]};
 let view='hoje', sub='main', rankTab='geral', rankSort='gols', gkSort='defesas', curSession=null, curMatch=null;
 
@@ -109,6 +113,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pObj=id=>db.players.find(p=>p.id===id);
 const pName=id=>(pObj(id)||{name:'(removido)'}).name;
+const pw=id=>{const p=pObj(id);return p&&p.w?p.w:W_DEF};
 const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
 const fmtDate=s=>{const [y,m,d]=s.split('-');return `${d}/${m}/${y}`};
 const S=()=>db.sessions.find(x=>x.id===curSession);
@@ -206,18 +211,27 @@ function nt(d){newTeams=Math.min(6,Math.max(2,newTeams+d));document.getElementBy
 function vTeams(s){
   const all=[...s.line].sort((a,b)=>pName(a).localeCompare(pName(b)));
   const owner=pid=>s.teams.find(t=>t.players.includes(pid));
-  const semTime=all.filter(p=>!owner(p)).length;
+  const sem=all.filter(p=>!owner(p));
+  const semTime=sem.length;
   const others=db.players.filter(p=>!s.line.includes(p.id)&&!s.gks.includes(p.id));
+  const prow=pid=>{const o=owner(pid);return `<div class="prow"><span class="grow">${o?`<span class="dot" style="background:${o.color}"></span>`:''}${esc(pName(pid))}<span class="tag w">P${pw(pid)}</span></span>
+      ${s.teams.map(t=>`<button class="tb ${o===t?'on':''}" style="--c:${t.color}" onclick="assign('${pid}','${t.id}')">${esc(t.name[0])}</button>`).join('')}
+      <button class="btn-sm" style="background:none;color:var(--mut)" onclick="dropLine('${pid}')">✕</button></div>`};
+  // agrupado por time (peso decrescente, depois nome); sem time por último
+  const groups=s.teams.map(t=>{
+    const ps=t.players.filter(p=>s.line.includes(p)).sort((a,b)=>pw(b)-pw(a)||pName(a).localeCompare(pName(b)));
+    return `<div class="thead" style="color:${t.color}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)} <span class="mut">· ${ps.length} jogador${ps.length===1?'':'es'}</span></div>`+(ps.map(prow).join('')||'<div class="mut" style="padding:6px 0">Vazio</div>');
+  }).join('');
+  const semHtml=semTime?`<div class="thead" style="color:var(--acc2)">Sem time <span class="mut">· ${semTime}</span></div>`+sem.map(prow).join(''):'';
   return `<div class="row" style="margin:6px 4px 10px"><b class="grow" style="font-size:18px">Times · ${fmtDate(s.date)}</b><button class="btn-acc btn-sm" onclick="sub='main';render()">Pronto</button></div>
     <div class="card">
       <div class="row"><span class="grow">Quantidade de times</span><div class="ctr"><button class="m" onclick="setTeamCount(-1)">−</button><b>${s.teams.length}</b><button onclick="setTeamCount(1)">+</button></div></div>
       <div class="chips" style="margin-top:12px">${s.teams.map(t=>`<button class="chip" style="border-color:${t.color}" onclick="renameTeam('${t.id}')"><span class="dot" style="background:${t.color}"></span>${esc(t.name)} (${t.players.length}) ✏️</button>`).join('')}</div>
-      <button style="width:100%;margin-top:12px" onclick="shuffleTeams()">🎲 Sortear times</button>
+      <button style="width:100%;margin-top:12px" onclick="shuffleTeams()">🎲 Sortear times (por peso)</button>
+      <div class="mut" style="margin-top:8px">Sorteio tenta manter um jogador de cada peso (P1–P5) em cada time.</div>
     </div>
     <h2>Jogadores de linha ${semTime?`<span style="color:var(--acc2);text-transform:none">· ${semTime} sem time</span>`:''}</h2>
-    <div class="card">${all.map(pid=>{const o=owner(pid);return `<div class="prow"><span class="grow">${o?`<span class="dot" style="background:${o.color}"></span>`:''}${esc(pName(pid))}</span>
-      ${s.teams.map(t=>`<button class="tb ${o===t?'on':''}" style="--c:${t.color}" onclick="assign('${pid}','${t.id}')">${t.name[0]}</button>`).join('')}
-      <button class="btn-sm" style="background:none;color:var(--mut)" onclick="dropLine('${pid}')">✕</button></div>`}).join('')||'<div class="mut">Ninguém ainda.</div>'}</div>
+    <div class="card">${all.length?groups+semHtml:'<div class="mut">Ninguém ainda.</div>'}</div>
     <h2>🧤 Goleiros (sem time)</h2>
     <div class="card"><div class="chips">${s.gks.map(pid=>`<button class="chip on" onclick="toggleSessGk('${pid}')">${esc(pName(pid))} ✕</button>`).join('')||'<span class="mut">Nenhum goleiro nesta pelada.</span>'}</div></div>
     ${others.length?`<h2>Adicionar à pelada</h2><div class="card"><div class="chips">${others.map(p=>`<button class="chip" onclick="${p.gk?`toggleSessGk('${p.id}')`:`addLine('${p.id}')`}">+ ${esc(p.name)}${p.gk?' 🧤':''}</button>`).join('')}</div></div>`:''}`;
@@ -303,15 +317,20 @@ function backupBox(){return `<h2>Backup</h2><div class="card"><p class="mut" sty
   <div class="row"><button class="grow" onclick="exportData()">📋 Copiar backup</button><button class="grow" onclick="importData()">📥 Restaurar</button></div></div>`}
 
 function vJogadores(){
+  const wOpts=sel=>Array.from({length:W_MAX-W_MIN+1},(_,i)=>W_MIN+i).map(w=>`<option value="${w}" ${w===sel?'selected':''}>Peso ${w}${w===W_MAX?' (melhor)':w===W_MIN?' (mais fraco)':''}</option>`).join('');
   return `<h2>Adicionar jogador</h2><div class="card">
     <input id="pn" placeholder="Nome ou apelido" maxlength="30" onkeydown="if(event.key==='Enter')addPlayer()">
+    <div class="row" style="margin-top:10px"><select id="pw" class="grow">${wOpts(W_DEF)}</select></div>
+    <div class="mut" style="margin-top:6px">O peso (${W_MIN} a ${W_MAX}) é usado no sorteio: cada time recebe, sempre que possível, um jogador de cada peso. Goleiros não usam peso.</div>
     <div class="row" style="margin-top:10px"><label class="row grow mut" style="gap:8px"><input type="checkbox" id="pgk" style="width:22px;height:22px"> É goleiro</label><button class="btn-acc" id="addp" onclick="addPlayer()">Adicionar</button></div></div>
     <h2>Elenco (${db.players.length})</h2>
-    ${db.players.length?[...db.players].sort((a,b)=>(b.gk-a.gk)||a.name.localeCompare(b.name)).map(p=>`<div class="card row">
-      <b class="grow">${esc(p.name)}${p.gk?'<span class="tag gk">goleiro</span>':''}</b>
+    ${db.players.length?[...db.players].sort((a,b)=>(b.gk-a.gk)||((b.gk?0:pw(b.id))-(a.gk?0:pw(a.id)))||a.name.localeCompare(b.name)).map(p=>`<div class="card">
+      <div class="row"><b class="grow">${esc(p.name)}${p.gk?'<span class="tag gk">goleiro</span>':''}</b>
       <button class="btn-sm" onclick="toggleGk('${p.id}')">${p.gk?'Linha':'🧤 Goleiro'}</button>
       <button class="btn-sm" onclick="renamePlayer('${p.id}')">✏️</button>
-      <button class="btn-sm btn-red" onclick="delPlayer('${p.id}')">🗑</button></div>`).join(''):`<div class="card empty">Nenhum jogador ainda.</div>`}`;
+      <button class="btn-sm btn-red" onclick="delPlayer('${p.id}')">🗑</button></div>
+      ${p.gk?'':`<div class="row" style="margin-top:8px"><span class="mut grow">Peso no sorteio</span><div class="ctr s"><button class="m" onclick="chW('${p.id}',-1)">−</button><b style="min-width:30px">${pw(p.id)}</b><button onclick="chW('${p.id}',1)">+</button></div></div>`}
+      </div>`).join(''):`<div class="card empty">Nenhum jogador ainda.</div>`}`;
 }
 
 /* ---------- actions ---------- */
@@ -327,8 +346,21 @@ function startSession(){
   for(let i=0;i<newTeams;i++)s.teams.push(mkTeam(i));
   db.sessions.push(s);curSession=s.id;shuffleTeams(true);sub='teams';save();render();
 }
-function shuffleTeams(silent){const s=S();const arr=[...s.line].sort(()=>Math.random()-.5);
-  s.teams.forEach(t=>t.players=[]);arr.forEach((p,i)=>s.teams[i%s.teams.length].players.push(p));save();
+// Sorteio por pesos: processa do maior peso para o menor; cada jogador vai para o time
+// que tem menos jogadores daquele peso (assim sai no máx. 1 de cada peso por time quando
+// há times suficientes), desempatando por menos jogadores no total, menor soma de pesos e acaso.
+function shuffleTeams(silent){const s=S();
+  const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  s.teams.forEach(t=>t.players=[]);
+  const sum={},cnt={};s.teams.forEach(t=>{sum[t.id]=0;cnt[t.id]={}});
+  const byW={};s.line.forEach(p=>{const w=pw(p);(byW[w]=byW[w]||[]).push(p)});
+  Object.keys(byW).map(Number).sort((a,b)=>b-a).forEach(w=>{
+    shuf(byW[w]).forEach(pid=>{
+      const t=shuf(s.teams).sort((a,b)=>(cnt[a.id][w]||0)-(cnt[b.id][w]||0)||a.players.length-b.players.length||sum[a.id]-sum[b.id])[0];
+      t.players.push(pid);cnt[t.id][w]=(cnt[t.id][w]||0)+1;sum[t.id]+=w;
+    });
+  });
+  save();
   if(silent!==true){rerender();toast('Times sorteados 🎲')}}
 function setTeamCount(d){const s=S();
   if(d>0){if(s.teams.length>=6)return;s.teams.push(mkTeam(s.teams.length))}
@@ -387,7 +419,9 @@ function closeSession(){curSession=null;render();toast('Pelada salva ✓')}
 function delSession(id){confirmBox('Excluir esta pelada e todos os números dela?',()=>{db.sessions=db.sessions.filter(s=>s.id!==id);if(curSession===id)curSession=null;save();render()})}
 function addPlayer(){const n=document.getElementById('pn').value.trim();if(!n)return;
   if(db.players.some(p=>p.name.toLowerCase()===n.toLowerCase()))return toast('Já existe esse nome');
-  db.players.push({id:uid(),name:n,gk:document.getElementById('pgk').checked});save();render();toast(`${n} adicionado`);document.getElementById('pn')?.focus()}
+  const w=Math.min(W_MAX,Math.max(W_MIN,parseInt(document.getElementById('pw').value)||W_DEF));
+  db.players.push({id:uid(),name:n,gk:document.getElementById('pgk').checked,w});save();render();toast(`${n} adicionado`);document.getElementById('pn')?.focus()}
+function chW(id,d){const p=pObj(id);p.w=Math.min(W_MAX,Math.max(W_MIN,pw(id)+d));save();rerender()}
 function toggleGk(id){const p=pObj(id);p.gk=!p.gk;save();rerender()}
 function renamePlayer(id){const p=pObj(id);openModal(`<b>Renomear</b><input id="rn" value="${esc(p.name)}" style="margin:12px 0"><div class="row"><button class="grow" onclick="closeModal()">Cancelar</button><button class="grow btn-acc" onclick="doRename('${id}')">Salvar</button></div>`)}
 function doRename(id){const n=document.getElementById('rn').value.trim();if(n){pObj(id).name=n;save()}closeModal();rerender()}
